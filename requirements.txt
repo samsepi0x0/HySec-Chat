@@ -1,0 +1,6 @@
+hashlib
+json
+argparse
+base64
+termcolor
+pycryptodomex
