@@ -70,11 +70,9 @@ class Client:
                 key = secret_key
                 k2 = key[:len(key)//2]
                 cipher = AES.new(key, AES.MODE_CFB)
-                cipher_2 = DES.new(k2, DES.MODE_CFB)
                 message_to_encrypt = self.username + ": \n" + message           
                 msgBytes = message_to_encrypt.encode()                                          
-                encrypted_message = cipher.encrypt(msgBytes)                    
-                encryptedmessage = cipher.encrypt(msgBytes[:len(msgBytes)//2]) + b'##' + cipher.encrypt(msgBytes[len(msgBytes)//2:])
+                encrypted_message = cipher.encrypt(msgBytes)
                 iv = b64encode(cipher.iv).decode('utf-8')                       
                 message = b64encode(encrypted_message).decode('utf-8')          
                 result = json.dumps({'iv':iv, 'ciphertext':message})            
@@ -94,8 +92,7 @@ class Client:
                 cipherText = b64decode(decrypt_message['ciphertext'])
                 c1 = cipherText[:cipherText.find(b'#') + 1]
                 c2 = cipherText[cipherText.rfind(b'#') + 1:]	   
-                cipher = AES.new(key, AES.MODE_CFB, iv=iv)
-                cipher_ = DES.new(k2, DES.MODE_CFB, iv=iv[:len(iv)//2])              
+                cipher = AES.new(key, AES.MODE_CFB, iv=iv)            
                 msg = cipher.decrypt(c1) + cipher.decrypt(c2)                        
                 current_time = datetime.datetime.now()
                 print(colored(msg[len(c1):].decode()+current_time.strftime('\n%Y-%m-%d %H:%M:%S\n'), 'green'))
