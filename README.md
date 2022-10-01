@@ -8,7 +8,7 @@ The server can be started using one parameter which should be the port number on
 - python3 server.py -p 9999
 
 The client has three parameters, -s server ip, -p server port number, -u username of the user
-- python3 client.py -s 0.0.0.0 -p 9999 -u Hemant
+- python3 client.py -s 0.0.0.0 -p 9999 -u heven
 
 The server can be terminated by typing 'TERMINATE' on the console.
 The client can be terminated by typing 'EXIT' on the console.
