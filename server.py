@@ -63,7 +63,7 @@ class Server:
         try:
             cpKey = RSA.importKey(client_pub_key)
             cipher = PKCS1_OAEP.new(cpKey)
-            encrypted_secret = cipher.encryptfsecre
+            encrypted_secret = cipher.encrypt(secret_key)
             return encrypted_secret
 
         except Exception as e:
