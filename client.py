@@ -69,13 +69,16 @@ class Client:
             else:
                 key = secret_key
                 k2 = key[:len(key)//2]
+                cipher_1 = DES.new(k2, DES.MODE_CFB)
                 cipher = AES.new(key, AES.MODE_CFB)
                 message_to_encrypt = self.username + ": \n" + message           
-                msgBytes = message_to_encrypt.encode()                                          
-                encrypted_message = cipher.encrypt(msgBytes)
-                iv = b64encode(cipher.iv).decode('utf-8')                       
+                msgBytes = message_to_encrypt.encode()
+                x = cipher.encrypt(msgBytes)                                          
+                encrypted_message = cipher_1.encrypt(x)
+                iv = b64encode(cipher.iv).decode('utf-8')      
+                iv_2 = b64encode(cipher_1.iv).decode('utf-8')                 
                 message = b64encode(encrypted_message).decode('utf-8')          
-                result = json.dumps({'iv':iv, 'ciphertext':message})            
+                result = json.dumps({'iv':iv, 'iv_2':iv_2, 'ciphertext':message})            
                 self.s.send(result.encode())                                    
         
         self.s.shutdown(socket.SHUT_RDWR)
@@ -85,17 +88,18 @@ class Client:
         while True:
             message = self.s.recv(1024).decode()
             if message:
+                #print(message)
                 key = secret_key
                 k2 = key[:len(key)//2]                 
                 decrypt_message = json.loads(message)                   
-                iv = b64decode(decrypt_message['iv'])                   
-                cipherText = b64decode(decrypt_message['ciphertext'])
-                c1 = cipherText[:cipherText.find(b'#') + 1]
-                c2 = cipherText[cipherText.rfind(b'#') + 1:]	   
+                iv = b64decode(decrypt_message['iv'])     
+                iv_2 = b64decode(decrypt_message['iv_2'])              
+                cipherText = b64decode(decrypt_message['ciphertext'])	
+                cipher_1 = DES.new(k2, DES.MODE_CFB, iv=iv_2)   
                 cipher = AES.new(key, AES.MODE_CFB, iv=iv)            
-                msg = cipher.decrypt(c1) + cipher.decrypt(c2)                        
+                msg = cipher.decrypt(cipher_1.decrypt(cipherText))                  
                 current_time = datetime.datetime.now()
-                print(colored(msg[len(c1):].decode()+current_time.strftime('\n%Y-%m-%d %H:%M:%S\n'), 'green'))
+                print(colored(msg.decode('utf-8')+current_time.strftime('\n%Y-%m-%d %H:%M:%S\n'), 'green'))
             else:
                 print("\n" *39)
                 print(colored("""
